@@ -19,11 +19,11 @@ class DatasetService {
             Files.list(dataDirectory).use { files ->
                 return files
                     .filter(Files::isRegularFile)
-                    .map({ path -> path.getFileName().toString() })
-                    .filter({ name ->
+                    .map { path -> path.fileName.toString() }
+                    .filter { name ->
                         name.endsWith(".csv") ||
                                 name.endsWith(".json")
-                    })
+                    }
                     .sorted()
                     .toList()
             }

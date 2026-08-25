@@ -75,7 +75,10 @@ class PlantManagerService(private val datasetService: DatasetService) {
         val eco = payload.path("ecocrop") as? ObjectNode
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "ecocrop must be an object")
         val scientificName = json.path("nama_ilmiah").asText().trim()
-        if (scientificName.isBlank()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Scientific name is required")
+        if (scientificName.isBlank()) throw ResponseStatusException(
+            HttpStatus.BAD_REQUEST,
+            "Scientific name is required"
+        )
 
         json.put("nama_ilmiah", scientificName)
         eco.put("ScientificName", scientificName)
@@ -90,7 +93,8 @@ class PlantManagerService(private val datasetService: DatasetService) {
         }
         val currentEco = ecoCrops()
         val updatedEco = currentEco.toMutableList()
-        val oldIndex = originalName?.let { name -> updatedEco.indexOfFirst { it["ScientificName"]?.asText() == name } } ?: -1
+        val oldIndex =
+            originalName?.let { name -> updatedEco.indexOfFirst { it["ScientificName"]?.asText() == name } } ?: -1
         if (oldIndex >= 0) updatedEco[oldIndex] = eco
         else if (updatedEco.none { it["ScientificName"]?.asText() == scientificName }) updatedEco.add(eco)
         else throw ResponseStatusException(HttpStatus.CONFLICT, "EcoCrop already has this scientific name")
@@ -108,14 +112,19 @@ class PlantManagerService(private val datasetService: DatasetService) {
         val path = datasetService.resolve(ecoCropFile)
         Files.newBufferedReader(path, StandardCharsets.UTF_8).use { reader ->
             CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build().parse(reader).use { parser ->
-                return parser.map { record -> mapper.createObjectNode().also { node -> parser.headerNames.forEach { node.put(it, record.get(it)) } } }
+                return parser.map { record ->
+                    mapper.createObjectNode()
+                        .also { node -> parser.headerNames.forEach { node.put(it, record.get(it)) } }
+                }
             }
         }
     }
 
-    private fun headers(): List<String> = Files.newBufferedReader(datasetService.resolve(ecoCropFile), StandardCharsets.UTF_8).use { reader ->
-        CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build().parse(reader).use { it.headerNames }
-    }
+    private fun headers(): List<String> =
+        Files.newBufferedReader(datasetService.resolve(ecoCropFile), StandardCharsets.UTF_8).use { reader ->
+            CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build().parse(reader)
+                .use { it.headerNames }
+        }
 
     private fun writeBoth(plantData: ArrayNode, ecoData: List<ObjectNode>) {
         val jsonPath = datasetService.resolve(plantsFile)
@@ -126,7 +135,10 @@ class PlantManagerService(private val datasetService: DatasetService) {
             mapper.writerWithDefaultPrettyPrinter().writeValue(jsonTemp.toFile(), plantData)
             val headerNames = headers()
             Files.newBufferedWriter(csvTemp, StandardCharsets.UTF_8).use { writer ->
-                CSVPrinter(writer, CSVFormat.DEFAULT.builder().setHeader(*headerNames.toTypedArray()).build()).use { printer ->
+                CSVPrinter(
+                    writer,
+                    CSVFormat.DEFAULT.builder().setHeader(*headerNames.toTypedArray()).build()
+                ).use { printer ->
                     ecoData.forEach { row -> printer.printRecord(headerNames.map { row.path(it).asText("") }) }
                 }
             }
@@ -145,7 +157,8 @@ class PlantManagerService(private val datasetService: DatasetService) {
     private fun findEcoCrop(scientificName: String): ObjectNode? = ecoCrops()
         .firstOrNull { it.path("ScientificName").asText() == scientificName }
 
-    private fun emptyEcoCrop(): ObjectNode = mapper.createObjectNode().also { row -> headers().forEach { row.put(it, "") } }
+    private fun emptyEcoCrop(): ObjectNode =
+        mapper.createObjectNode().also { row -> headers().forEach { row.put(it, "") } }
 
     private fun summary(plant: ObjectNode) = mapOf(
         "scientificName" to plant.path("nama_ilmiah").asText(),
