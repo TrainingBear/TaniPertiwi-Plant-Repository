@@ -23,14 +23,20 @@ class PlantManagerController(private val plants: PlantManagerService) {
     fun template() = plants.template()
 
     @PostMapping("/api/plants") @ResponseBody
-    fun create(@RequestBody payload: JsonNode) = ResponseEntity.status(HttpStatus.CREATED).body(plants.create(payload))
+    fun create(@RequestBody payload: JsonNode): ResponseEntity<Map<String, Any>> {
+        return ResponseEntity.status(HttpStatus.CREATED).body(plants.create(payload))
+    }
 
     @PutMapping("/api/plants/{scientificName}") @ResponseBody
-    fun update(@PathVariable scientificName: String, @RequestBody payload: JsonNode) = plants.update(scientificName, payload)
+    fun update(@PathVariable scientificName: String, @RequestBody payload: JsonNode): Map<String, Any> {
+        return plants.update(scientificName, payload)
+    }
 
     @DeleteMapping("/api/plants/{scientificName}") @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun delete(@PathVariable scientificName: String) = plants.delete(scientificName)
+    fun delete(@PathVariable scientificName: String) {
+        return plants.delete(scientificName)
+    }
 
     @PostMapping("/api/images", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]) @ResponseBody
     fun upload(@RequestParam file: MultipartFile): Map<String, String> {

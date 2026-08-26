@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 import org.springframework.http.HttpStatus
@@ -17,7 +16,7 @@ import java.nio.file.StandardCopyOption
 
 @Service
 class PlantManagerService(private val datasetService: DatasetService) {
-    private val mapper: ObjectMapper = jacksonObjectMapper()
+    private val mapper: ObjectMapper = ObjectMapper()
     private val plantsFile = "plants.json"
     private val ecoCropFile = "EcoCrop_DB.csv"
 
@@ -28,26 +27,25 @@ class PlantManagerService(private val datasetService: DatasetService) {
             .sortedBy { it["scientificName"]?.lowercase() }
     }
 
-    fun detail(scientificName: String): ObjectNode {
+    fun detail(scientificName: String): Map<String, Any> {
         val plant = findPlant(scientificName)
-        val result = mapper.createObjectNode()
-        result.set<ObjectNode>("json", plant)
-        result.set<ObjectNode>("ecocrop", findEcoCrop(scientificName) ?: emptyEcoCrop())
-        return result
+        return detailResponse(plant, findEcoCrop(scientificName) ?: emptyEcoCrop())
     }
 
-    fun template(): ObjectNode = mapper.createObjectNode().also { result ->
-        result.set<ObjectNode>("json", mapper.createObjectNode().also { plant ->
+    fun template(): Map<String, Any> {
+        val plant = mapper.createObjectNode().also { plant ->
             plant.put("difficulty", "MEDIUM")
             plant.set<ObjectNode>("plant_care", mapper.createObjectNode())
             plant.set<ObjectNode>("product_system", mapper.createObjectNode())
-        })
-        result.set<ObjectNode>("ecocrop", emptyEcoCrop())
+        }
+        return detailResponse(plant, emptyEcoCrop())
     }
 
-    fun create(payload: JsonNode): ObjectNode = save(payload, null)
+    fun create(payload: JsonNode): Map<String, Any> = save(payload, null)
 
-    fun update(scientificName: String, payload: JsonNode): ObjectNode = save(payload, scientificName)
+    fun update(scientificName: String, payload: JsonNode): Map<String, Any> {
+        return save(payload, scientificName)
+    }
 
     fun delete(scientificName: String) {
         val plantEntries = plants()
@@ -69,7 +67,7 @@ class PlantManagerService(private val datasetService: DatasetService) {
         return "/api/images/$safeName"
     }
 
-    private fun save(payload: JsonNode, originalName: String?): ObjectNode {
+    private fun save(payload: JsonNode, originalName: String?): Map<String, Any> {
         val json = payload.path("json") as? ObjectNode
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "json must be an object")
         val eco = payload.path("ecocrop") as? ObjectNode
@@ -164,6 +162,17 @@ class PlantManagerService(private val datasetService: DatasetService) {
 
     private fun emptyEcoCrop(): ObjectNode =
         mapper.createObjectNode().also { row -> headers().forEach { row.put(it, "") } }
+
+    /**
+     * Spring Boot 4 uses Jackson 3 for HTTP responses, while this repository
+     * reads its files with Jackson 2 nodes.  Returning those nodes directly
+     * makes Jackson 3 serialize their Java bean properties instead of their
+     * JSON contents.  Convert them to standard maps at the HTTP boundary.
+     */
+    private fun detailResponse(plant: ObjectNode, ecocrop: ObjectNode): Map<String, Any> = mapOf(
+        "json" to mapper.convertValue(plant, Map::class.java),
+        "ecocrop" to mapper.convertValue(ecocrop, Map::class.java)
+    )
 
     private fun summary(plant: ObjectNode) = mapOf(
         "scientificName" to plant.path("nama_ilmiah").asText(),

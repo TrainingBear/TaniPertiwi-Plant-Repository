@@ -216,7 +216,7 @@ summary {
     grid-column: 1 / -1
 }
 
-.field input, .field textarea {
+.field input, .field textarea, .field select {
     width: 100%;
     border: 1px solid #cad7c7;
     border-radius: 6px;
