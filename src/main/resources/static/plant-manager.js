@@ -1,23 +1,112 @@
-const profileFields = [
-    'nama_ilmiah', 'common_name',
-    'family', 'genus', 'kingdom',
-    'kategori', 'difficulty',
-    'fullsize', 'thumbnail', 'taxon',
-    'common_names', 'min_panen',
-    'max_panen', 'ph', 'temp',
-    'description', 'prune_guide'
+const profilePanels = [
+    {
+        title: 'Identitas', fields: [
+            ['nama_ilmiah', 'Nama ilmiah', 'Wajib diisi; kunci pemetaan pada repository.'],
+            ['common_name', 'Nama umum'], ['kategori', 'Kategori'], ['difficulty', 'Tingkat kesulitan']
+        ]
+    },
+    {
+        title: 'Klasifikasi', fields: [
+            ['kingdom', 'Kingdom'], ['family', 'Famili'], ['genus', 'Genus'], ['taxon', 'Takson']
+        ]
+    },
+    {
+        title: 'Karakteristik tumbuh & panen', fields: [
+            ['min_panen', 'Panen minimum', 'Waktu panen tercepat, misalnya 45 hari.'],
+            ['max_panen', 'Panen maksimum', 'Waktu panen terlama, misalnya 60 hari.'],
+            ['ph', 'pH tanah', 'Rentang pH tanah yang dianjurkan.'],
+            ['temp', 'Suhu', 'Suhu tumbuh yang dianjurkan, dalam °C.']
+        ]
+    },
+    {
+        title: 'Media & deskripsi', fields: [
+            ['thumbnail', 'URL thumbnail', 'Gambar kecil untuk daftar tanaman.'],
+            ['fullsize', 'URL gambar penuh', 'Gambar utama tanaman.'],
+            ['common_names', 'Nama-nama lain', 'Pisahkan setiap nama dengan koma.', 'textarea'],
+            ['description', 'Deskripsi singkat', 'Ringkasan tanaman untuk pengguna.', 'textarea'],
+            ['prune_guide', 'Panduan pemangkasan', 'Petunjuk khusus jika diperlukan.', 'textarea']
+        ]
+    }
 ];
-const careFields = [
-    'watering', 'pruning', 'fertilization',
-    'sunlight', 'pest_disease_management'
-];
-const productFields = [
-        'rumah_tangga', 'komersial', 'industri'
+
+const carePanels = [{
+    title: 'Rutinitas perawatan', fields: [
+        ['watering', 'Penyiraman', 'Contoh: 2–3 kali per minggu; biarkan lapisan tanah atas mengering.', 'textarea'],
+        ['pest_disease_management', 'Kontrol hama & penyakit', 'Sebutkan pencegahan, gejala umum, atau penanganannya.', 'textarea'],
+        ['fertilization', 'Pemupukan', 'Tuliskan jenis pupuk dan frekuensi pemberiannya.', 'textarea'],
+        ['sunlight', 'Sinar matahari', 'Contoh: matahari penuh (6+ jam) atau teduh sebagian.', 'textarea'],
+        ['pruning', 'Pemangkasan', 'Jelaskan bagian tanaman dan waktu pemangkasan.', 'textarea']
     ]
-;
+}];
+
+const productPanels = [{
+    title: 'Kegunaan produk', fields: [
+        ['komersial', 'Komersial', 'Potensi produk atau pasar komersial.', 'textarea'],
+        ['rumah_tangga', 'Rumah tangga', 'Kegunaan untuk konsumsi atau kebutuhan rumah tangga.', 'textarea'],
+        ['industri', 'Industri', 'Bahan baku atau aplikasi industri.', 'textarea']
+    ]
+}];
+
+const ecocropPanels = [
+    {
+        title: 'Identitas sumber', fields: [
+            ['EcoPortCode', 'Kode EcoPort'], ['ScientificName', 'Nama ilmiah'], ['AUTH', 'Otoritas nama'],
+            ['FAMNAME', 'Klasifikasi famili'], ['SYNO', 'Sinonim', 'Pisahkan sinonim dengan koma.', 'textarea'],
+            ['COMNAME', 'Nama umum', 'Daftar nama umum dari sumber EcoCrop.', 'textarea']
+        ]
+    },
+    {
+        title: 'Habit & kategori', fields: [
+            ['LIFO', 'Bentuk hidup'], ['HABI', 'Habitus'], ['LISPA', 'Siklus hidup'], ['PHYS', 'Fisiognomi'],
+            ['CAT', 'Kategori tanaman'], ['PLAT', 'Sistem penanaman']
+        ]
+    },
+    {
+        title: 'Suhu, curah hujan & pH', fields: [
+            ['TOPMN', 'Suhu optimal minimum', '°C.'], ['TOPMX', 'Suhu optimal maksimum', '°C.'],
+            ['TMIN', 'Suhu minimum', '°C.'], ['TMAX', 'Suhu maksimum', '°C.'],
+            ['ROPMN', 'Curah hujan optimal minimum', 'mm per tahun.'], ['ROPMX', 'Curah hujan optimal maksimum', 'mm per tahun.'],
+            ['RMIN', 'Curah hujan minimum', 'mm per tahun.'], ['RMAX', 'Curah hujan maksimum', 'mm per tahun.'],
+            ['PHOPMN', 'pH optimal minimum'], ['PHOPMX', 'pH optimal maksimum'],
+            ['PHMIN', 'pH minimum'], ['PHMAX', 'pH maksimum']
+        ]
+    },
+    {
+        title: 'Lokasi, ketinggian & cahaya', fields: [
+            ['LATOPMN', 'Lintang optimal minimum', 'Derajat lintang.'], ['LATOPMX', 'Lintang optimal maksimum', 'Derajat lintang.'],
+            ['LATMN', 'Lintang minimum', 'Derajat lintang.'], ['LATMX', 'Lintang maksimum', 'Derajat lintang.'],
+            ['ALTMX', 'Ketinggian maksimum', 'Meter di atas permukaan laut.'],
+            ['LIOPMN', 'Cahaya optimal minimum'], ['LIOPMX', 'Cahaya optimal maksimum'],
+            ['LIMN', 'Cahaya minimum'], ['LIMX', 'Cahaya maksimum']
+        ]
+    },
+    {
+        title: 'Kedalaman, tekstur & kesuburan tanah', fields: [
+            ['DEP', 'Kedalaman tanah'], ['DEPR', 'Kedalaman tanah (referensi)'],
+            ['TEXT', 'Tekstur tanah', 'Gunakan istilah tekstur dari EcoCrop.', 'textarea'],
+            ['TEXTR', 'Tekstur tanah (referensi)', 'Gunakan istilah tekstur dari EcoCrop.', 'textarea'],
+            ['FER', 'Kesuburan tanah'], ['FERR', 'Kesuburan tanah (referensi)']
+        ]
+    },
+    {
+        title: 'Toleransi & drainase', fields: [
+            ['TOX', 'Toleransi toksisitas'], ['TOXR', 'Toksisitas (referensi)'],
+            ['SAL', 'Toleransi salinitas'], ['SALR', 'Salinitas (referensi)'],
+            ['DRA', 'Kebutuhan drainase'], ['DRAR', 'Drainase (referensi)']
+        ]
+    },
+    {
+        title: 'Iklim & siklus pertumbuhan', fields: [
+            ['KTMPR', 'Klasifikasi Köppen utama'], ['KTMP', 'Klasifikasi Köppen'],
+            ['PHOTO', 'Fotoperiode'], ['CLIZ', 'Zona iklim', 'Daftar zona iklim yang sesuai.', 'textarea'],
+            ['ABITOL', 'Toleransi abiotik'], ['ABISUS', 'Kerentanan abiotik'],
+            ['INTRI', 'Sifat intrusi'], ['PROSY', 'Sistem perbanyakan'],
+            ['GMIN', 'Masa tumbuh minimum', 'Hari.'], ['GMAX', 'Masa tumbuh maksimum', 'Hari.']
+        ]
+    }
+];
 let selected = null, originalName = null;
 const find = s => document.querySelector(s);
-const label = k => k.replaceAll('_', ' ').replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
 
 async function request(url, options) {
     const res = await fetch(url, options);
@@ -49,19 +138,48 @@ async function openPlant(name) {
     render(false);
 }
 
-function addField(container, key, value, area = false) {
-    const wrapper = document.createElement('label'), title = document.createElement('span');
-    title.textContent = label(key);
-    wrapper.append(title);
-    const input = document.createElement(area ? 'textarea' : 'input');
+function addField(container, [key, title, hint, type], value) {
+    const wrapper = document.createElement('label');
+    wrapper.className = type === 'textarea' ? 'field field-wide' : 'field';
+    const labelText = document.createElement('span');
+    labelText.className = 'field-label';
+    labelText.textContent = title;
+    wrapper.append(labelText);
+    if (hint) {
+        const help = document.createElement('small');
+        help.className = 'field-hint';
+        help.textContent = hint;
+        wrapper.append(help);
+    }
+    const input = document.createElement(type === 'textarea' ? 'textarea' : 'input');
     input.name = `${container}:${key}`;
     input.value = value ?? '';
     wrapper.append(input);
-    find(container).append(wrapper);
+    return wrapper;
+}
+
+function renderPanels(container, panels, values) {
+    const target = find(container);
+    panels.forEach(panel => {
+        const section = document.createElement('section');
+        section.className = 'field-panel';
+        const heading = document.createElement('h3');
+        heading.textContent = panel.title;
+        const fields = document.createElement('div');
+        fields.className = 'panel-fields';
+        panel.fields.forEach(
+            field =>
+                fields.append(
+                    addField(container, field, values?.[field[0]])
+                )
+        );
+        section.append(heading, fields);
+        target.append(section);
+    });
 }
 
 function render(isNew) {
-    find('#empty').hidden = true;
+    // find('#empty').hidden = true;
     find('#editor').hidden = false;
     find('#profile').replaceChildren();
     find('#care').replaceChildren();
@@ -70,10 +188,10 @@ function render(isNew) {
     find('#mode').textContent = isNew ? 'NEW PLANT' : 'EDIT PLANT';
     find('#delete').hidden = isNew;
     find('#message').textContent = '';
-    profileFields.forEach(k => addField('#profile', k, selected.json[k], ['description', 'common_names', 'prune_guide'].includes(k)));
-    careFields.forEach(k => addField('#care', k, selected.json.plant_care?.[k], true));
-    productFields.forEach(k => addField('#product', k, selected.json.product_system?.[k], true));
-    Object.keys(selected.ecocrop).forEach(k => addField('#ecocrop', k, selected.ecocrop[k], k === 'COMNAME' || k === 'SYNO' || k === 'CLIZ'));
+    renderPanels('#profile', profilePanels, selected.json);
+    renderPanels('#care', carePanels, selected.json.plant_care);
+    renderPanels('#product', productPanels, selected.json.product_system);
+    renderPanels('#ecocrop', ecocropPanels, selected.ecocrop);
     find('#title').textContent = selected.json.nama_ilmiah || 'Untitled plant';
 }
 
@@ -117,7 +235,7 @@ find('#delete').onclick = async () => {
     try {
         await request('/api/plants/' + encodeURIComponent(originalName), {method: 'DELETE'});
         find('#editor').hidden = true;
-        find('#empty').hidden = false;
+        // find('#empty').hidden = false;
         await loadList();
     } catch (err) {
         alert(err.message)

@@ -105,6 +105,7 @@ class PlantManagerService(private val datasetService: DatasetService) {
     private fun plants(): List<ObjectNode> {
         val root = mapper.readTree(datasetService.resolve(plantsFile).toFile()) as? ArrayNode
             ?: throw IllegalStateException("plants.json must contain an array")
+        "Successfully loaded ${root.size()} identified plants!".info()
         return root.map { it.deepCopy<ObjectNode>() }
     }
 
@@ -112,10 +113,12 @@ class PlantManagerService(private val datasetService: DatasetService) {
         val path = datasetService.resolve(ecoCropFile)
         Files.newBufferedReader(path, StandardCharsets.UTF_8).use { reader ->
             CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build().parse(reader).use { parser ->
-                return parser.map { record ->
+                val result = parser.map { record ->
                     mapper.createObjectNode()
                         .also { node -> parser.headerNames.forEach { node.put(it, record.get(it)) } }
                 }
+                "Successfully loaded ${result.size} ecocrop plants!".info()
+                return result
             }
         }
     }
@@ -150,9 +153,11 @@ class PlantManagerService(private val datasetService: DatasetService) {
         }
     }
 
-    private fun findPlant(scientificName: String, source: List<ObjectNode> = plants()): ObjectNode =
-        source.firstOrNull { it.path("nama_ilmiah").asText() == scientificName }
+    private fun findPlant(scientificName: String, source: List<ObjectNode> = plants()): ObjectNode {
+        val result = source.firstOrNull { it.path("nama_ilmiah").asText() == scientificName }
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Plant not found")
+        return result
+    }
 
     private fun findEcoCrop(scientificName: String): ObjectNode? = ecoCrops()
         .firstOrNull { it.path("ScientificName").asText() == scientificName }

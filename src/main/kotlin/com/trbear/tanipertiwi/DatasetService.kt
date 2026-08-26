@@ -14,7 +14,7 @@ class DatasetService {
     }
 
     @Throws(IOException::class)
-    fun listFiles(): List<String?> {
+    fun listFiles(): List<String> {
         try {
             Files.list(dataDirectory).use { files ->
                 return files
