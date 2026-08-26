@@ -27,7 +27,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-
+    implementation("org.slf4j:slf4j-api:2.0.18")
     implementation("org.apache.commons:commons-csv:1.14.1")
 
     implementation("tools.jackson.module:jackson-module-kotlin")
